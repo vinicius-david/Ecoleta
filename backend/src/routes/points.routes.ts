@@ -1,5 +1,5 @@
 import express from 'express';
-import { getRepository, Like } from 'typeorm';
+import { getRepository } from 'typeorm';
 
 import CreatePointService from '../services/CreatePointService';
 import CreatePointsCategoriesService from '../services/CreatePointsCategoriesService';
@@ -10,30 +10,28 @@ import PointsCategories from '../models/PointsCategories';
 const pointsRouter = express.Router();
 
 pointsRouter.get('/', async (request, response) => {
-  const { city, uf, categoriesParams } = request.query;
+  const { city, uf, categories } = request.query;
 
   const pointsRepository = getRepository(Point);
-  const pointsCategoriesRepository = getRepository(PointsCategories);
-  const categoriesRepository = getRepository(Category);
 
-  const points = await pointsRepository.find({
-    where: [
-      { city: Like(`%${city}%`) },
-      { uf: Like(`%${uf}%`) },
-    ]
-  });
+  const parsedCategories = String(categories).split(',').map(item => item.trim())
 
-  const pointCategories = await pointsCategoriesRepository.find({ where: { point_id: points[2].id } })
-  const categoriesIds = pointCategories.map(item => item.category_id)
+  if (!categories) {
+    parsedCategories.shift();
 
-  const categories = await categoriesRepository.findByIds(categoriesIds);
-
-  const pointsAndCategories = {
-    ...points[0],
-    categories,
+    const pointsCategoriesRepository = getRepository(PointsCategories);
+    const pointCategories = await pointsCategoriesRepository.find();
+    pointCategories.map(item => parsedCategories.push(item.category_id));
   }
 
-  return response.json({pointsAndCategories, categories});
+  const points = await pointsRepository.createQueryBuilder('points')
+    .leftJoinAndSelect("point_categories", "point_categories", "points.id = point_categories.point_id")
+    .where("point_categories.category_id IN (:...id)", { id: parsedCategories })
+    .orWhere("points.uf = :uf", { uf: String(uf) })
+    .orWhere("points.city = :city", { city: String(city) })
+    .getMany()
+
+  return response.json(points);
 });
 
 pointsRouter.post('/', async (request, response) => {
