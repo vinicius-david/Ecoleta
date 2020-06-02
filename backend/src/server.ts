@@ -14,5 +14,5 @@ app.use(routes);
 app.use('/files', express.static(path.resolve(__dirname, '..', 'tmp')));
 
 app.listen(3333, () => {
-  console.log('Server is running in localhost 3333');
+  console.log('Server is running in localhost 3333!');
 });
