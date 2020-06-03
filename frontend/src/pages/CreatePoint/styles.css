@@ -201,3 +201,35 @@
   background: #E1FAEC;
   border: 2px solid #34CB79;
 }
+
+#modal {
+  width: 99vw;
+  height: 200vh;
+  background: rgba(22, 22, 22, 0.9);
+
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+
+  visibility: hidden;
+}
+
+#modal svg {
+  color: var(--primary-color);
+  position: fixed;
+  right: 45%;
+  top: 30%;
+}
+
+#modal h1 {
+  color: white;
+  font-size: 55px;
+  position: fixed;
+  right: 35%;
+  top: 55%;
+}
+
+#modal.active {
+  visibility: visible;
+}

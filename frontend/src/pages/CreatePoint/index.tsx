@@ -1,6 +1,6 @@
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { Link, useHistory } from 'react-router-dom';
-import { FiArrowLeft } from 'react-icons/fi';
+import { FiArrowLeft, FiCheckCircle } from 'react-icons/fi';
 import { Map, TileLayer, Marker } from 'react-leaflet';
 import { LeafletMouseEvent } from 'leaflet';
 import axios from 'axios';
@@ -39,6 +39,8 @@ const CreatePoint = () => {
   const [selectedCity, setSelectedCity] = useState<string>('0');
   const [selectedPosition, setSelectedPosition] = useState<[number, number]>([0, 0]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
+  const [modal, setModal] = useState<string>('');
 
   const history = useHistory();
 
@@ -134,11 +136,20 @@ const CreatePoint = () => {
       categories,
     }
 
-    await api.post('/points', data);
+    const values = Object.values(data)
+    // eslint-disable-next-line
+    const checkIfIsFilels = values.filter(value => { if (value === '' || value == 0) return value })
 
-    alert("Ponto cadastrado!");
+    if (checkIfIsFilels.length > 0) {
+      return alert('Fill all fields');
+    } else {
+      await api.post('/points', data);
 
-    history.push('/');
+      setModal('active')
+
+      setTimeout(() => {history.push('/')}, 2500);
+    }
+
   }
 
   return (
@@ -266,6 +277,11 @@ const CreatePoint = () => {
 
         <button type="submit">Cadastrar ponto de coleta</button>
       </form>
+
+      <div id='modal' className={modal}>
+        <FiCheckCircle size={200} />
+        <h1>Cadastro concluído!!</h1>
+      </div>
     </div>
   );
 }
