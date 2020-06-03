@@ -3,6 +3,8 @@ import { getRepository } from 'typeorm';
 
 import CreatePointService from '../services/CreatePointService';
 import CreatePointsCategoriesService from '../services/CreatePointsCategoriesService';
+import UpdatePointService from '../services/UpdatePointService';
+import DeletePointService from '../services/DeletePointService';
 import Point from '../models/Point';
 import Category from '../models/Category';
 import PointsCategories from '../models/PointsCategories';
@@ -77,7 +79,7 @@ pointsRouter.get('/:id', async (request, response) => {
 
   const pointsRepository = getRepository(Point);
 
-  const point = await pointsRepository.findOne({ where: { id } });
+  const point = await pointsRepository.findOne(id);
 
   if (!point) return response.status(404).json({ message: 'Point not found' });
 
@@ -91,5 +93,46 @@ pointsRouter.get('/:id', async (request, response) => {
 
   return response.json({ point, categories });
 });
+
+pointsRouter.put('/:id', async (request, response) => {
+  const { id } = request.params;
+  const {
+    image,
+    name,
+    email,
+    whatsapp,
+    latitude,
+    longitude,
+    city,
+    uf,
+    categories,
+  } = request.body;
+
+  const updatePoint = new UpdatePointService();
+
+  const point = await updatePoint.execute({
+    id,
+    image,
+    name,
+    email,
+    whatsapp,
+    latitude,
+    longitude,
+    city,
+    uf,
+  });
+
+  return response.json(point);
+})
+
+pointsRouter.delete('/:id', async (request, response) => {
+  const { id } = request.params;
+
+  const deletePoint = new DeletePointService();
+
+  await deletePoint.execute({ id });
+
+  return response.json({ message: 'Point deleted.' })
+})
 
 export default pointsRouter;
