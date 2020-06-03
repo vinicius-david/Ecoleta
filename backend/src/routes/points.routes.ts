@@ -1,10 +1,11 @@
 import express from 'express';
 import { getRepository } from 'typeorm';
 
-import CreatePointService from '../services/CreatePointService';
+import CreatePointService from '../services/Point/CreatePointService';
 import CreatePointsCategoriesService from '../services/CreatePointsCategoriesService';
-import UpdatePointService from '../services/UpdatePointService';
-import DeletePointService from '../services/DeletePointService';
+import DeletePointsCategoriesService from '../services/DeletePointsCategories';
+import UpdatePointService from '../services/Point/UpdatePointService';
+import DeletePointService from '../services/Point/DeletePointService';
 import Point from '../models/Point';
 import Category from '../models/Category';
 import PointsCategories from '../models/PointsCategories';
@@ -18,19 +19,13 @@ pointsRouter.get('/', async (request, response) => {
 
   const parsedCategories = String(categories).split(',').map(item => item.trim())
 
-  if (!categories) {
-    parsedCategories.shift();
-
-    const pointsCategoriesRepository = getRepository(PointsCategories);
-    const pointCategories = await pointsCategoriesRepository.find();
-    pointCategories.map(item => parsedCategories.push(item.category_id));
-  }
+  if (!categories) return response.json({ message: 'Select at leats one type of item.' })
 
   const points = await pointsRepository.createQueryBuilder('points')
     .leftJoinAndSelect("point_categories", "point_categories", "points.id = point_categories.point_id")
     .where("point_categories.category_id IN (:...id)", { id: parsedCategories })
-    .orWhere("points.uf = :uf", { uf: String(uf) })
-    .orWhere("points.city = :city", { city: String(city) })
+    .andWhere("points.uf = :uf", { uf: String(uf) })
+    .andWhere("points.city = :city", { city: String(city) })
     .getMany()
 
   return response.json(points);
@@ -108,6 +103,9 @@ pointsRouter.put('/:id', async (request, response) => {
     categories,
   } = request.body;
 
+  const deletePointsCategories = new DeletePointsCategoriesService();
+  await deletePointsCategories.execute({ id });
+
   const updatePoint = new UpdatePointService();
 
   const point = await updatePoint.execute({
@@ -122,14 +120,24 @@ pointsRouter.put('/:id', async (request, response) => {
     uf,
   });
 
+  const pointCategories = {
+    categories,
+    point_id: point.id
+  }
+
+  const createPointsCategories = new CreatePointsCategoriesService();
+  await createPointsCategories.execute(pointCategories);
+
   return response.json(point);
 })
 
 pointsRouter.delete('/:id', async (request, response) => {
   const { id } = request.params;
 
-  const deletePoint = new DeletePointService();
+  const deletePointsCategories = new DeletePointsCategoriesService();
+  await deletePointsCategories.execute({ id });
 
+  const deletePoint = new DeletePointService();
   await deletePoint.execute({ id });
 
   return response.json({ message: 'Point deleted.' })

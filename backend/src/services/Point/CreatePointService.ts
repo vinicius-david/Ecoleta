@@ -1,6 +1,6 @@
 import { getRepository } from 'typeorm';
 
-import Point from '../models/Point';
+import Point from '../../models/Point';
 
 interface RequestDTO {
   image: string;
@@ -18,7 +18,7 @@ class CreatePointService {
     const pointRepository = getRepository(Point);
 
     const point = pointRepository.create({
-      image,
+      image: 'fake',
       name,
       email,
       whatsapp,

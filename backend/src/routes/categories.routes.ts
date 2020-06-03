@@ -1,10 +1,11 @@
-import express, { request } from 'express';
+import express from 'express';
 import { getRepository } from 'typeorm';
 
-import CreateCategoryService from '../services/CreateCategoryService';
-import UpdateCategoryService from '../services/UpdateCategoryService';
-import DeleteCategoryService from '../services/DeleteCategoryService';
+import CreateCategoryService from '../services/Category/CreateCategoryService';
+import UpdateCategoryService from '../services/Category/UpdateCategoryService';
+import DeleteCategoryService from '../services/Category/DeleteCategoryService';
 import Category from '../models/Category';
+import PointsCategories from '../models/PointsCategories';
 
 const categoriesRouter = express.Router();
 
@@ -56,8 +57,13 @@ categoriesRouter.put('/:id', async (request, response) => {
 categoriesRouter.delete('/:id', async (request, response) => {
   const { id } = request.params;
 
-  const deleteCategory = new DeleteCategoryService();
+  const pointsCategoriesRepository = getRepository(PointsCategories);
+  const pointsCategories = await pointsCategoriesRepository.find({ where: { category_id: id } });
 
+  if (pointsCategories.length !== 0)
+  return response.json({ message: "Categories collected by points can't be deleted." })
+
+  const deleteCategory = new DeleteCategoryService();
   await deleteCategory.execute({ id });
 
   return response.json({ message: 'Category deleted' });
