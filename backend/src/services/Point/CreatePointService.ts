@@ -18,7 +18,7 @@ class CreatePointService {
     const pointRepository = getRepository(Point);
 
     const point = pointRepository.create({
-      image: 'fake',
+      image: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=600&q=60',
       name,
       email,
       whatsapp,

@@ -12,7 +12,7 @@ class CreateCategoryService {
     const categoriesRepository = getRepository(Category);
 
     const category = categoriesRepository.create({
-      image,
+      image: `http://192.168.100.16:3333/files/${image}.svg`,
       title,
     });
 

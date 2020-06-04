@@ -16,10 +16,14 @@ pointsRouter.get('/', async (request, response) => {
   const { city, uf, categories } = request.query;
 
   const pointsRepository = getRepository(Point);
-
   const parsedCategories = String(categories).split(',').map(item => item.trim())
 
-  if (!categories) return response.json({ message: 'Select at leats one type of item.' })
+  if (!categories) {
+    const categoriesRepository = getRepository(Category);
+    const categoriesIds = await categoriesRepository.find();
+    categoriesIds.map(category => parsedCategories.push(category.id));
+    parsedCategories.shift();
+  }
 
   const points = await pointsRepository.createQueryBuilder('points')
     .leftJoinAndSelect("point_categories", "point_categories", "points.id = point_categories.point_id")
