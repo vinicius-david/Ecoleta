@@ -8,6 +8,7 @@ import axios from 'axios';
 import './styles.css';
 import logo from '../../assets/logo.svg';
 import api from '../../services/api';
+import Dropzone from '../../components/Dropzone';
 
 interface Category {
   id: string;
@@ -27,6 +28,7 @@ const CreatePoint = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [ufs, setUfs] = useState<string[]>([]);
   const [cities, setCities] = useState<string[]>([]);
+  const [uploadedFile, setUploadedFile] = useState<File>();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -65,7 +67,7 @@ const CreatePoint = () => {
 
       setUfs(ufsInitials);
     })
-  })
+  }, []);
 
   useEffect(() => {
     if (selectedUf === '0') setCities([]);
@@ -125,16 +127,18 @@ const CreatePoint = () => {
     const city = selectedCity;
     const categories = selectedCategories;
 
-    const data = {
-      name,
-      email,
-      whatsapp,
-      latitude,
-      longitude,
-      uf,
-      city,
-      categories,
-    }
+    const data = new FormData();
+
+    data.append('name', name);
+    data.append('email', email);
+    data.append('whatsapp', whatsapp);
+    data.append('latitude', String(latitude));
+    data.append('longitude', String(longitude));
+    data.append('uf', uf);
+    data.append('city', city);
+    data.append('categories', categories.join(','));
+
+    if (uploadedFile) data.append('image', uploadedFile);
 
     const values = Object.values(data)
     // eslint-disable-next-line
@@ -165,6 +169,8 @@ const CreatePoint = () => {
 
       <form onSubmit={handleSubmit}>
         <h1>Cadatro do ponto de coleta</h1>
+
+        <Dropzone onFileUploaded={setUploadedFile} />
 
         <fieldset>
           <legend>

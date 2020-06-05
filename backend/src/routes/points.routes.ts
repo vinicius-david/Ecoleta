@@ -1,5 +1,10 @@
 import express from 'express';
 import { getRepository } from 'typeorm';
+import multer from 'multer';
+import { Joi, celebrate } from 'celebrate';
+
+import multerConfig from '../config/multer';
+import Serialize from '../config/serialize';
 
 import CreatePointService from '../services/Point/CreatePointService';
 import CreatePointsCategoriesService from '../services/CreatePointsCategoriesService';
@@ -11,6 +16,8 @@ import Category from '../models/Category';
 import PointsCategories from '../models/PointsCategories';
 
 const pointsRouter = express.Router();
+
+const upload = multer(multerConfig);
 
 pointsRouter.get('/', async (request, response) => {
   const { city, uf, categories } = request.query;
@@ -32,12 +39,31 @@ pointsRouter.get('/', async (request, response) => {
     .andWhere("points.city = :city", { city: String(city) })
     .getMany()
 
-  return response.json(points);
+  const serializedPoints = points.map(point => {
+    return {
+      ...point,
+      image: Serialize(point.image),
+    }
+  });
+
+  return response.json({points: serializedPoints});
 });
 
-pointsRouter.post('/', async (request, response) => {
+pointsRouter.post('/', upload.single('image'), celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required(),
+    email: Joi.string().required().email(),
+    whatsapp: Joi.number().required(),
+    latitude: Joi.number().required(),
+    longitude: Joi.number().required(),
+    city: Joi.string().required(),
+    uf: Joi.string().required().max(2),
+    categories: Joi.string().required()
+  })
+}, {
+  abortEarly: false
+}), async (request, response) => {
   const {
-    image,
     name,
     email,
     whatsapp,
@@ -47,6 +73,7 @@ pointsRouter.post('/', async (request, response) => {
     uf,
     categories,
   } = request.body;
+  const image = request.file.filename;
 
   const createPoint = new CreatePointService();
 
@@ -61,8 +88,11 @@ pointsRouter.post('/', async (request, response) => {
     uf,
   })
 
+  const categoriesArray = categories.split(',')
+  const trimmedCategoriesArray = categoriesArray.map((item: string) => item.trim());
+
   const pointCategories = {
-    categories,
+    categories: trimmedCategoriesArray,
     point_id: point.id
   }
 
@@ -82,6 +112,11 @@ pointsRouter.get('/:id', async (request, response) => {
 
   if (!point) return response.status(404).json({ message: 'Point not found' });
 
+  const serializedPoint = {
+    ...point,
+    image: Serialize(point.image),
+  }
+
   const pointsCategoriesRepository = getRepository(PointsCategories);
   const categoriesRepository = getRepository(Category);
 
@@ -90,7 +125,7 @@ pointsRouter.get('/:id', async (request, response) => {
 
   const categories = await categoriesRepository.findByIds(categoriesIds);
 
-  return response.json({ point, categories });
+  return response.json({ point: serializedPoint, categories });
 });
 
 pointsRouter.put('/:id', async (request, response) => {

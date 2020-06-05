@@ -76,7 +76,7 @@ const Points = () => {
         categories: selectedCategories,
       }
     }).then(response => {
-      setPoints(response.data);
+      setPoints(response.data.points);
     })
   }, [selectedCategories]);
 
