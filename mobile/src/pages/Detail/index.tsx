@@ -117,10 +117,11 @@ const styles = StyleSheet.create({
 
   pointItems: {
     fontFamily: 'Roboto_400Regular',
-    fontSize: 16,
+    fontSize: 18,
     lineHeight: 24,
     marginTop: 8,
-    color: '#6C6C80'
+    color: '#148859',
+    fontWeight: "bold",
   },
 
   address: {

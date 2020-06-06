@@ -196,10 +196,14 @@ const styles = StyleSheet.create({
 
   mapContainer: {
     flex: 1,
-    width: '100%',
-    borderRadius: 10,
+    position: 'absolute',
+    width: '125%',
+    height: '125%',
+    bottom: '-50%',
     overflow: 'hidden',
     marginTop: 16,
+    borderTopWidth: 2,
+    borderTopColor: '#007700'
   },
 
   map: {
@@ -240,6 +244,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: 16,
     marginBottom: 32,
+    zIndex: 1000,
   },
 
   item: {
