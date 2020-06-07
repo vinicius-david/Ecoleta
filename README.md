@@ -18,9 +18,9 @@ O projeto **Ecoleta** foi criado durante a primeira **Next Level Week** da Rocke
 </h1>
 
 <h1>
-  <img src='https://ik.imagekit.io/xcu9aqv3wh/mobile1_C6byv3YzY.jpeg'>
-  <img src='https://ik.imagekit.io/xcu9aqv3wh/mobile2_pzXrnw2Ii.jpeg'>
-  <img src='https://ik.imagekit.io/xcu9aqv3wh/mobile3_FW80AtwST.jpeg'>
+  <img src='https://ik.imagekit.io/xcu9aqv3wh/mobile1_C6byv3YzY.jpeg' width=300>
+  <img src='https://ik.imagekit.io/xcu9aqv3wh/mobile2_pzXrnw2Ii.jpeg' width=300>
+  <img src='https://ik.imagekit.io/xcu9aqv3wh/mobile3_FW80AtwST.jpeg' width=300 >
 </h1>
 
 ## 💻 Tecnologias
@@ -42,8 +42,13 @@ O projeto foi feito de forma diferente do que apresentado durante a semana. Foi 
   # Clonar o projeto
   $ git clone https://github.com/vinicius-david/Ecoleta.git
 
-  # Instalar as dependências
-  $ yarn
+  # Entrar no diretório
+  $ cd Ecoleta
+
+  # Instalar as dependências em cada pasta do projeto
+  $ cd backend       $ yarn
+  $ cd ../frontend   $ yarn
+  $ cd ../mobile     $ yarn
 
 ```
 
